@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib
 
 
 class DFT:
@@ -35,7 +36,7 @@ class DFT:
 
         if N % 2 != 0:
             raise AssertionError("size of a must be a power of 2")
-        elif N <= 4:
+        elif N <= 16:
             return DFT.slow_one_dimension(a)
         else:
             even = DFT.fast_one_dimension(a[::2])
@@ -56,7 +57,7 @@ class DFT:
 
         if N % 2 != 0:
             raise AssertionError("size of a must be a power of 2")
-        elif N <= 4:
+        elif N <= 16:
             return DFT.slow_one_dimension_inverse(a)
         else:
             even = DFT.fast_one_dimension_inverse(a[::2])
@@ -106,24 +107,29 @@ class DFT:
     def fast_two_dimension(a):
         a = np.asarray(a, dtype=complex)
         N, M = a.shape
+        res = np.zeros((N, M), dtype=complex)
 
-        if N % 2 != 0 or M % 2 != 0:
-            raise AssertionError("size of a must be a power of 2")
-        elif N <= 4 and M <= 4:
-            return DFT.slow_two_dimension(a)
-        else:
-            # perform the operation row by row
-            res = np.zeros((N,M), dtype=complex)
+        for col in range(M):
+            res[:, col] = DFT.fast_one_dimension(a[:, col])
 
-            for row_index in N:
-                res[row_index, :] = DFT.fast_one_dimension(a[row_index, :])
-            Q = a.reshape()
-            q1  = DFT.fast_two_dimension(a[::2][::2])
-            q2  = DFT.fast_one_dimension(a[1::2])
-            
-            multiplier = np.exp(-2j * np.pi * np.arange(N) / N)
-            return np.concatenate([even + factor[:N / 2] * odd,
-                                   even + factor[N / 2:] * odd])
+        for row in range(N):
+            res[row, :] = DFT.fast_one_dimension(res[row, :])
+
+        return res
+
+    @staticmethod
+    def fast_two_dimension_inverse(a):
+        a = np.asarray(a, dtype=complex)
+        N, M = a.shape
+        res = np.zeros((N, M), dtype=complex)
+
+        for row in range(N):
+            res[row, :] = DFT.fast_one_dimension_inverse(a[row, :])
+
+        for col in range(M):
+            res[:, col] = DFT.fast_one_dimension_inverse(res[:, col])
+
+        return res
 
     @staticmethod
     def test():
@@ -141,7 +147,9 @@ class DFT:
             (DFT.fast_one_dimension, a, fft),
             (DFT.fast_one_dimension_inverse, fft, a),
             (DFT.slow_two_dimension, a2, fft2),
-            (DFT.slow_two_dimension_inverse, fft2, a2)
+            (DFT.slow_two_dimension_inverse, fft2, a2),
+            (DFT.fast_two_dimension, a2, fft2),
+            (DFT.fast_two_dimension_inverse, fft2, a2)
         )
 
         for method, args, expected in tests:

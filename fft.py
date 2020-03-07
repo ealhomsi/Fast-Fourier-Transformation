@@ -1,7 +1,18 @@
-import numpy as np
 import argparse
-import matplotlib
+import math
+
+import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+import matplotlib.image as mpimg
+
+import numpy as np
+
 from dft import DFT
+
+
+def desiredSize(n):
+    p = int(math.log(n, 2)); 
+    return int(pow(2, p+1));  
 
 def __main__():
     results = None
@@ -15,12 +26,62 @@ def __main__():
     image = results.image
 
 
+    # run tests
     DFT.test()
 
     if mode == 1:
-        pass
+        # read the image
+        im_raw = plt.imread(image).astype(float)
+
+        # pad the image to desired size
+        old_shape = im_raw.shape
+        new_shape = desiredSize(old_shape[0]), desiredSize(old_shape[1])
+        im = np.zeros(new_shape) 
+        im[:old_shape[0], :old_shape[1]] = im_raw
+
+        # perform fft 2d
+        fft_im = DFT.fast_two_dimension(im)
+        
+        #display
+        fig, ax = plt.subplots(1, 2)
+        ax[0].imshow(im, plt.cm.gray)
+        axs[0].set_title('original')
+        ax[1].imshow(np.abs(fft_im), norm=colors.LogNorm())
+        axs[1].set_title('fft')
+        fig.suptitle('Mode 1')
+        plt.show()
+
     elif mode == 2:
-        pass
+        # define a percentage keep fraction
+        keep_fraction = 0.08
+
+        # read the image
+        im_raw = plt.imread(image).astype(float)
+
+        # pad the image to desired size
+        old_shape = im_raw.shape
+        new_shape = desiredSize(old_shape[0]), desiredSize(old_shape[1])
+        im = np.zeros(new_shape) 
+        im[:old_shape[0], :old_shape[1]] = im_raw
+
+        # perform fft 2d and remove high frequency values
+        fft_im = DFT.fast_two_dimension(im)
+        r,c = fft_im.shape
+        print("Fraction of pixels used {} and the number is ({}, {}) out of ({}, {})".format(keep_fraction, int(keep_fraction*r), int(keep_fraction*c), r, c))
+        fft_im[int(r*keep_fraction):int(r*(1-keep_fraction))] = 0
+        fft_im[:, int(c*keep_fraction):int(c*(1-keep_fraction))] = 0
+        
+        # perform ifft 2d to denoise the image
+        denoised = DFT.fast_two_dimension_inverse(fft_im).real
+
+        #display
+        fig, ax = plt.subplots(1, 2)
+        ax[0].imshow(im, plt.cm.gray)
+        axs[0].set_title('original')
+        ax[1].imshow(denoised, plt.cm.gray)
+        axs[1].set_title('denoised')
+        fig.suptitle('Mode 2')
+        plt.show()
     elif mode == 3:
         pass
     elif mode == 4:
