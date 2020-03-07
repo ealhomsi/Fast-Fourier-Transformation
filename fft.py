@@ -45,9 +45,9 @@ def __main__():
         #display
         fig, ax = plt.subplots(1, 2)
         ax[0].imshow(im, plt.cm.gray)
-        axs[0].set_title('original')
+        ax[0].set_title('original')
         ax[1].imshow(np.abs(fft_im), norm=colors.LogNorm())
-        axs[1].set_title('fft')
+        ax[1].set_title('fft 2d with lognorm')
         fig.suptitle('Mode 1')
         plt.show()
 
@@ -77,9 +77,9 @@ def __main__():
         #display
         fig, ax = plt.subplots(1, 2)
         ax[0].imshow(im, plt.cm.gray)
-        axs[0].set_title('original')
+        ax[0].set_title('original')
         ax[1].imshow(denoised, plt.cm.gray)
-        axs[1].set_title('denoised')
+        ax[1].set_title('denoised')
         fig.suptitle('Mode 2')
         plt.show()
     elif mode == 3:
