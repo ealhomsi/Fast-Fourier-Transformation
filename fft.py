@@ -1,5 +1,6 @@
 import argparse
 import math
+import statistics
 import time
 
 import matplotlib.colors as colors
@@ -85,11 +86,12 @@ def __main__():
 
         # perform fft 2d and remove high frequency values
         fft_im = DFT.fast_two_dimension(im)
-        r, c = fft_im.shape
+        rows, columns = fft_im.shape
         print("Fraction of pixels used {} and the number is ({}, {}) out of ({}, {})".format(
-            keep_fraction, int(keep_fraction*r), int(keep_fraction*c), r, c))
-        fft_im[int(r*keep_fraction):int(r*(1-keep_fraction))] = 0
-        fft_im[:, int(c*keep_fraction):int(c*(1-keep_fraction))] = 0
+            keep_fraction, int(keep_fraction*rows), int(keep_fraction*columns), rows, columns))
+
+        fft_im[int(rows*keep_fraction):int(rows*(1-keep_fraction))] = 0
+        fft_im[:, int(columns*keep_fraction):int(columns*(1-keep_fraction))] = 0
 
         # perform ifft 2d to denoise the image
         denoised = DFT.fast_two_dimension_inverse(fft_im).real
@@ -134,37 +136,47 @@ def __main__():
         plt.show()
     elif mode == 4:
         # define sample runs
-        runs = 10
+        runs = 50
 
         # run plots
-        fig, ax = plt.subplots(1, 2)
+        fig, ax = plt.subplots()
+
+        ax.set_xlabel('problem size')
+        ax.set_ylabel('runtime in seconds')
+        ax.set_title('Line plot with error bars')
 
         for algo_index, algo in enumerate([DFT.slow_two_dimension, DFT.fast_two_dimension]):
             print("starting measurement for {}".format(algo.__name__))
             x = []
             y = []
 
-            power_2 = 2**5
-            while power_2 <= 2**13:
-                print("doing problem size of {}".format(power_2))
-                a = np.random.rand(power_2, power_2)
-                x.append(power_2)
+            problem_size = 2**4
+            while problem_size <= 2**14:
+                print("doing problem size of {}".format(problem_size))
+                a = np.random.rand(int(math.sqrt(problem_size)),
+                                   int(math.sqrt(problem_size)))
+                x.append(problem_size)
 
-                avg = 0
+                stats_data = []
                 for i in range(runs):
                     print("run {} ...".format(i+1))
                     start_time = time.time()
                     algo(a)
-                    avg += time.time() - start_time
+                    delta = time.time() - start_time
+                    stats_data.append(delta)
 
-                avg /= runs
-                y.append(avg)
+                mean = statistics.mean(stats_data)
+                sd = statistics.stdev(stats_data)
 
-                power_2 *= 2
+                print("for problem size of {} over {} runs: mean {}, stdev {}".format(
+                    problem_size, runs, mean, sd))
 
-            ax[algo_index].plot(x ,y)
-            ax[algo_index].set_title(algo.__name__)
-        fig.suptitle('Mode 4')
+                y.append(mean)
+
+                # ensure square and power of 2 problems sizes
+                problem_size *= 4
+
+            plt.errorbar(x, y, yerr=sd, fmt='r--' if algo_index == 0 else 'g')
         plt.show()
     else:
         print("ERROR\tMode {} is not recofgnized".format(mode))

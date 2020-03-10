@@ -14,8 +14,7 @@ usage: fft.py [-h] [-m MODE] [-i IMAGE]
 
 optional arguments:
   -h, --help  show this help message and exit
-  -m MODE     Mode of operation 1-> fast, 2-> denoise, 3-> compress&save 4->
-              plot
+  -m MODE     Mode of operation 1-> fast, 2-> denoise, 3-> compress&save 4-> plot
   -i IMAGE    image path to work on
 ```
 
@@ -34,3 +33,4 @@ optional arguments:
 - numpy
 - scipy
 - time
+- statistics 

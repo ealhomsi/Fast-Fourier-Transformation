@@ -130,3 +130,6 @@ dmypy.json
 
 # Ignore the compression factors
 coefficients*.csr.npz
+
+# Ignore output.txt
+mode4_output.txt
