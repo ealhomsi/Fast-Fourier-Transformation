@@ -129,7 +129,5 @@ dmypy.json
 .pyre/
 
 # Ignore the compression factors
-coefficients*.csr.npz
+.coefficients*.csr.npz
 
-# Ignore output.txt
-mode4_output.txt
