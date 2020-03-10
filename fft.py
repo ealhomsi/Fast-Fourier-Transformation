@@ -28,7 +28,7 @@ def compress_image(im_fft, compression_level, originalCount):
 
     compressed_im_fft = im_fft * \
         np.logical_or(im_fft <= lower, im_fft >= upper)
-    save_npz('/matricies/coefficients-{}-compression.csr'.format(compression_level),
+    save_npz('coefficients-{}-compression.csr'.format(compression_level),
              csr_matrix(compressed_im_fft))
 
     return DFT.fast_two_dimension_inverse(compressed_im_fft)
