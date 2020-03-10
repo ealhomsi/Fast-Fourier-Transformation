@@ -1,12 +1,12 @@
 import argparse
 import math
+import time
 
-import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.image as mpimg
-
+import matplotlib.pyplot as plt
 import numpy as np
-from scipy.sparse import save_npz, csr_matrix
+from scipy.sparse import csr_matrix, save_npz
 
 from dft import DFT
 
@@ -26,10 +26,13 @@ def compress_image(im_fft, compression_level, originalCount):
     print('non zero values for level {}% are {} out of {}'.format(compression_level, int(
         originalCount * ((100 - compression_level) / 100.0)), originalCount))
 
-    compressed_im_fft = im_fft * np.logical_or(im_fft <= lower, im_fft >= upper)
-    save_npz('/matricies/coefficients-{}compression.csr'.format(level), csr_matrix(compressed_im_fft))
+    compressed_im_fft = im_fft * \
+        np.logical_or(im_fft <= lower, im_fft >= upper)
+    save_npz('/matricies/coefficients-{}-compression.csr'.format(compression_level),
+             csr_matrix(compressed_im_fft))
 
     return DFT.fast_two_dimension_inverse(compressed_im_fft)
+
 
 def __main__():
     results = None
@@ -130,7 +133,39 @@ def __main__():
         fig.suptitle('Mode 3')
         plt.show()
     elif mode == 4:
-        pass
+        # define sample runs
+        runs = 10
+
+        # run plots
+        fig, ax = plt.subplots(1, 2)
+
+        for algo_index, algo in enumerate([DFT.slow_two_dimension, DFT.fast_two_dimension]):
+            print("starting measurement for {}".format(algo.__name__))
+            x = []
+            y = []
+
+            power_2 = 2**5
+            while power_2 <= 2**13:
+                print("doing problem size of {}".format(power_2))
+                a = np.random.rand(power_2, power_2)
+                x.append(power_2)
+
+                avg = 0
+                for i in range(runs):
+                    print("run {} ...".format(i+1))
+                    start_time = time.time()
+                    algo(a)
+                    avg += time.time() - start_time
+
+                avg /= runs
+                y.append(avg)
+
+                power_2 *= 2
+
+            ax[algo_index].plot(x ,y)
+            ax[algo_index].set_title(algo.__name__)
+        fig.suptitle('Mode 4')
+        plt.show()
     else:
         print("ERROR\tMode {} is not recofgnized".format(mode))
         return
