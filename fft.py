@@ -136,7 +136,7 @@ def __main__():
         plt.show()
     elif mode == 4:
         # define sample runs
-        runs = 50
+        runs = 10
 
         # run plots
         fig, ax = plt.subplots()
@@ -151,7 +151,7 @@ def __main__():
             y = []
 
             problem_size = 2**4
-            while problem_size <= 2**14:
+            while problem_size <= 2**12:
                 print("doing problem size of {}".format(problem_size))
                 a = np.random.rand(int(math.sqrt(problem_size)),
                                    int(math.sqrt(problem_size)))
@@ -176,7 +176,8 @@ def __main__():
                 # ensure square and power of 2 problems sizes
                 problem_size *= 4
 
-            plt.errorbar(x, y, yerr=sd, fmt='r--' if algo_index == 0 else 'g')
+            color = 'r--' if algo_index == 0 else 'g'
+            plt.errorbar(x, y, yerr=sd, fmt=color)
         plt.show()
     else:
         print("ERROR\tMode {} is not recofgnized".format(mode))
