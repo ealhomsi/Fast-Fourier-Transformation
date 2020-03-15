@@ -73,7 +73,7 @@ def __main__():
 
     elif mode == 2:
         # define a percentage keep fraction
-        keep_fraction = 0.08
+        keep_ratio = 0.08
 
         # read the image
         im_raw = plt.imread(image).astype(float)
@@ -88,10 +88,10 @@ def __main__():
         fft_im = DFT.fast_two_dimension(im)
         rows, columns = fft_im.shape
         print("Fraction of pixels used {} and the number is ({}, {}) out of ({}, {})".format(
-            keep_fraction, int(keep_fraction*rows), int(keep_fraction*columns), rows, columns))
+            keep_ratio, int(keep_ratio*rows), int(keep_ratio*columns), rows, columns))
 
-        fft_im[int(rows*keep_fraction):int(rows*(1-keep_fraction))] = 0
-        fft_im[:, int(columns*keep_fraction):int(columns*(1-keep_fraction))] = 0
+        fft_im[int(rows*keep_ratio):int(rows*(1-keep_ratio))] = 0
+        fft_im[:, int(columns*keep_ratio):int(columns*(1-keep_ratio))] = 0
 
         # perform ifft 2d to denoise the image
         denoised = DFT.fast_two_dimension_inverse(fft_im).real
