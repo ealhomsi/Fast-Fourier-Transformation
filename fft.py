@@ -116,7 +116,7 @@ def __main__():
         originalCount = old_shape[0] * old_shape[1]
 
         # define compression levels
-        compression = [0, 14, 30, 50, 70, 94]
+        compression = [0, 14, 30, 50, 70, 95]
 
         # write down abs of fft
         im_fft = DFT.fast_two_dimension(im)
